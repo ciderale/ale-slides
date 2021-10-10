@@ -1,4 +1,4 @@
-{writers, pandoc, entr, fetchFromGitHub, mkDerivation}:
+{writers, pandoc, entr, fetchFromGitHub, mkDerivation, coreutils}:
 
 rec {
 
@@ -31,7 +31,7 @@ rec {
       exit 1
     fi
     shift
-    ln -sfT ${revealJsL} reveal.js
+    ${coreutils}/bin/ln -sfT ${revealJsL} reveal.js
     ${pandoc}/bin/pandoc -t revealjs -s -o "$DOCUMENT".html "$DOCUMENT" $@
   '';
 
