@@ -1,11 +1,24 @@
 {
   description = "Flake for producing slides";
 
-  outputs = { self, nixpkgs }: {
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = { self, nixpkgs, flake-utils }: {
 
     overlay = final: prev: {
-      ale-slides = final.callPackages ./default.nix {};
+      ale-slides = prev.pkgs.callPackages ./default.nix {
+        mkDerivation = prev.stdenv.mkDerivation;
+      };
     };
 
-  };
+  } // flake-utils.lib.eachDefaultSystem (system: let
+    pkgs = import nixpkgs { inherit system; overlays = [self.overlay]; };
+  in {
+
+    packages = pkgs.ale-slides;
+
+  });
 }
