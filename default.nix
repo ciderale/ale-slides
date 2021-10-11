@@ -1,4 +1,4 @@
-{writers, pandoc, entr, fetchFromGitHub, mkDerivation, coreutils}:
+{writers, pandoc, entr, fetchFromGitHub, mkDerivation, coreutils, browser-sync }:
 
 rec {
 
@@ -55,7 +55,7 @@ rec {
     HTML=$DOCUMENT.html
 
     echo "# watching for output changes and update slides"
-    browser-sync start --server --index $HTML --files $HTML --logLevel silent --files **/*.css &
+    ${browser-sync}/bin/browser-sync start --server --index $HTML --files $HTML --logLevel silent --files **/*.css &
     BSPID=$!
 
     echo "# watching for input changes and recompile"
