@@ -1,13 +1,6 @@
-{writers, pandoc, entr, fetchFromGitHub, mkDerivation, coreutils, browser-sync }:
+{writers, pandoc, entr, fetchFromGitHub, mkDerivation, coreutils, browser-sync, revealJs }:
 
 rec {
-
-  revealJs = fetchFromGitHub {
-    owner = "hakimel";
-    repo = "reveal.js";
-    rev = "542bcab5691f152dd04fd7b3e402163b94275762";
-    sha256 = "0hv3kl4x291ifsvjfk95pdnl51fyd164h96rd44mcflsslslqpnx";
-  };
 
   # cleaned up version with all files in the right spot
   revealJsL = mkDerivation {
@@ -51,8 +44,8 @@ rec {
       exit 1
     fi
     shift
-    # ${coreutils}/bin/ln -sfT ${revealJsL} reveal.js
-    ${pandoc}/bin/pandoc -t revealjs -s -o "$DOCUMENT".html "$DOCUMENT" $@
+    ${coreutils}/bin/ln -sfT ${revealJs} reveal.js
+    ${pandoc}/bin/pandoc -t revealjs -V revealjs-url=./reveal.js -s -o "$DOCUMENT".html "$DOCUMENT" $@
   '';
 
   slides-selfcontained= writers.writeBashBin "slides-selfcontained" ''

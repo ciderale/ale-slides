@@ -31,10 +31,27 @@
         "type": "github"
       }
     },
+    "revealJs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1633684122,
+        "narHash": "sha256-JLtHbvUQybf3+cuKDEhemrD9R7zrBa7AfnQGHf5ra0g=",
+        "owner": "hakimel",
+        "repo": "reveal.js",
+        "rev": "810d80bc3c9b26a9ab24607d01223172927fe645",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hakimel",
+        "repo": "reveal.js",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "revealJs": "revealJs"
       }
     }
   },
