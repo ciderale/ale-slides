@@ -13,7 +13,7 @@
     overlay = final: prev: {
       ale-slides = prev.pkgs.callPackages ./default.nix {
         inherit revealJs;
-        browser-sync = prev.nodePackages.browser-sync;
+        inherit (prev.nodePackages) browser-sync;
       };
     };
 
