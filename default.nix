@@ -85,14 +85,18 @@ rec {
   bs-config = writeText "bs-config" ''
     const markdownInput = process.argv[process.argv.length-1];
     const execSync = require('child_process').execSync;
+    function build() {
+      console.log('rebuild html file');
+      execSync(`${slides-build}/bin/slides-build ''${markdownInput}`);
+    }
+    build()
     module.exports = {
       "files": [
         `''${markdownInput}.html`,
         "**/*.css",
         { match: [markdownInput],
           fn: function (event, file) {
-            console.log('rebuild html file');
-            execSync(`${slides-build}/bin/slides-build ''${markdownInput}`);
+            build()
           }
         },
       ],
