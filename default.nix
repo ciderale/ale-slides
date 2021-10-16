@@ -21,6 +21,26 @@ rec {
     '';
   };
 
+  slides-init = writers.writeBashBin "slides-init" ''
+    TITLE=''${*:-Cool Presentation}
+    export LC_TIME=''${LC_TIME:-de_CH}
+    cat <<EOF
+    ---
+    title: $TITLE
+    author: $(id -F)
+    date: $(date +%x)
+    hash: true # good for development/reload
+    theme: moon
+    ---
+
+    # Fancy section of <br> $TITLE
+
+    ## Superbe content
+
+    this is just **cool**
+    EOF
+  '';
+
   # build slides using pandoc.
   slides-build = writers.writeBashBin "slides-build" ''
     DOCUMENT=$1
@@ -31,7 +51,7 @@ rec {
       exit 1
     fi
     shift
-    ${coreutils}/bin/ln -sfT ${revealJsL} reveal.js
+    # ${coreutils}/bin/ln -sfT ${revealJsL} reveal.js
     ${pandoc}/bin/pandoc -t revealjs -s -o "$DOCUMENT".html "$DOCUMENT" $@
   '';
 
@@ -41,6 +61,7 @@ rec {
     # --css ./css/print/paper.css
   '';
 
+  # currently not working: decktape not installed, some formatting issues
   slides-pdf = writers.writeBashBin "slides-pdf" ''
     DOCUMENT=$1; shift
     HTML=$DOCUMENT.html
@@ -65,7 +86,10 @@ rec {
     trap "kill $BSPID $ENTRPID" EXIT
 
     vim $DOCUMENT
-    #${pandoc}/bin/pandoc -t revealjs -s -o ''${DOCUMENT}.html "''$DOCUMENT" -V revealjs-url=./tmp/reveal.js
+
+    echo "compute a final self contained html"
+    ${slides-build}/bin/slides-build $* --self-contained
+    echo "completed: open $HTML"
 
     # create pdf after finishing editing
     # ${slides-pdf}/bin/slides-pdf $DOCUMENT > /dev/null 2&>/dev/null &
