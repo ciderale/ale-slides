@@ -54,16 +54,19 @@ rec {
   slides-preview = writers.writeBashBin "slides-preview" ''
     DOCUMENT=$1
     HTML=$DOCUMENT.html
+    export SLIDES_REBUILD="${slides-build}/bin/slides-build $*"
 
     echo "# watching for output changes and update slides"
-    ${browser-sync}/bin/browser-sync start --config ${bs-config} $DOCUMENT 2>&1 >/dev/null &
+    ${browser-sync}/bin/browser-sync \
+      start --config ${bs-config} $DOCUMENT \
+      2>&1 >/dev/null &
     BSPID=$!
     trap "kill $BSPID" EXIT
 
     vim $DOCUMENT
 
     echo "compute a final self contained html"
-    ${slides-build}/bin/slides-build $* --self-contained
+    $SLIDES_REBUILD --self-contained
     echo "completed: open $HTML"
 
     # create pdf after finishing editing
@@ -74,19 +77,15 @@ rec {
     const markdownInput = process.argv[process.argv.length-1];
     const execSync = require('child_process').execSync;
     function build() {
-      console.log('rebuild html file');
-      execSync(`${slides-build}/bin/slides-build ''${markdownInput}`);
+      console.log('rebuild html file: ');
+      console.log('result', execSync("$SLIDES_REBUILD"));
     }
     build()
     module.exports = {
       "files": [
         `''${markdownInput}.html`,
         "**/*.css",
-        { match: [markdownInput],
-          fn: function (event, file) {
-            build()
-          }
-        },
+        { match: [markdownInput], fn: function (event, file) { build() } },
       ],
       "server": {
         index: `''${markdownInput}.html`,
