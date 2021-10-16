@@ -1,4 +1,4 @@
-{writers, pandoc, entr, fetchFromGitHub, mkDerivation, coreutils, browser-sync, revealJs }:
+{writers, writeText, pandoc, mkDerivation, browser-sync, revealJs }:
 
 rec {
 
@@ -44,8 +44,7 @@ rec {
       exit 1
     fi
     shift
-    ${coreutils}/bin/ln -sfT ${revealJs} reveal.js
-    ${pandoc}/bin/pandoc -t revealjs -V revealjs-url=./reveal.js -s -o "$DOCUMENT".html "$DOCUMENT" $@
+    ${pandoc}/bin/pandoc -t revealjs -V revealjs-url=${revealJs} -s -o "$DOCUMENT".html "$DOCUMENT" $@
   '';
 
   slides-selfcontained= writers.writeBashBin "slides-selfcontained" ''
@@ -69,14 +68,9 @@ rec {
     HTML=$DOCUMENT.html
 
     echo "# watching for output changes and update slides"
-    ${browser-sync}/bin/browser-sync start --server --index $HTML --files $HTML --logLevel silent --files **/*.css &
+    ${browser-sync}/bin/browser-sync start --config ${bs-config} $DOCUMENT 2>&1 >/dev/null &
     BSPID=$!
-
-    echo "# watching for input changes and recompile"
-    ${entr}/bin/entr -a -n ${slides-build}/bin/slides-build $* <<< $DOCUMENT 2>&1 >/dev/null &
-    ENTRPID=$!
-
-    trap "kill $BSPID $ENTRPID" EXIT
+    trap "kill $BSPID" EXIT
 
     vim $DOCUMENT
 
@@ -86,5 +80,26 @@ rec {
 
     # create pdf after finishing editing
     # ${slides-pdf}/bin/slides-pdf $DOCUMENT > /dev/null 2&>/dev/null &
+  '';
+
+  bs-config = writeText "bs-config" ''
+    const markdownInput = process.argv[process.argv.length-1];
+    const execSync = require('child_process').execSync;
+    module.exports = {
+      "files": [
+        `''${markdownInput}.html`,
+        "**/*.css",
+        { match: [markdownInput],
+          fn: function (event, file) {
+            console.log('rebuild html file');
+            execSync(`${slides-build}/bin/slides-build ''${markdownInput}`);
+          }
+        },
+      ],
+      "server": {
+        index: `''${markdownInput}.html`,
+        routes: { "${revealJs}": "${revealJs}" }
+      }
+    };
   '';
 }
