@@ -1,18 +1,6 @@
-{writers, writeText, pandoc, mkDerivation, browser-sync, revealJs }:
+{writers, writeText, pandoc, browser-sync, revealJs }:
 
 rec {
-
-  # cleaned up version with all files in the right spot
-  revealJsL = mkDerivation {
-    src = revealJs;
-    name = "reveal.js-dist";
-    installPhase = ''
-      mkdir -p $out;
-      ln -s $src/css $out;
-      ln -s $src/js $out;
-      ln -s $src/plugin $out;
-    '';
-  };
 
   slides-init = writers.writeBashBin "slides-init" ''
     TITLE=''${*:-Cool Presentation}
