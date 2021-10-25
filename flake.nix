@@ -9,6 +9,12 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, revealJs }: {
+    homeManagerModule = { pkgs, ... }: {
+      nixpkgs.overlays = [self.overlay];
+      home.packages = with pkgs.ale-slides; [
+        slides-init slides-preview slides-build
+      ];
+    };
 
     overlay = final: prev: {
       ale-slides = prev.pkgs.callPackages ./default.nix {
