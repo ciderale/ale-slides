@@ -4,6 +4,7 @@
   pandoc,
   browser-sync,
   revealJs,
+  git,
 }: rec {
   slides-init = writers.writeBashBin "slides-init" ''
     TITLE=''${*:-Cool Presentation}
@@ -11,7 +12,7 @@
     cat <<EOF
     ---
     title: $TITLE
-    author: $(id -F)
+    author: $(git config user.name)
     date: $(date +%x)
     hash: true # good for development/reload
     theme: moon
