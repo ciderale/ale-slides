@@ -1,7 +1,10 @@
-{writers, writeText, pandoc, browser-sync, revealJs }:
-
-rec {
-
+{
+  writers,
+  writeText,
+  pandoc,
+  browser-sync,
+  revealJs,
+}: rec {
   slides-init = writers.writeBashBin "slides-init" ''
     TITLE=''${*:-Cool Presentation}
     export LC_TIME=''${LC_TIME:-de_CH}
@@ -35,7 +38,7 @@ rec {
     ${pandoc}/bin/pandoc -t revealjs -V revealjs-url=${revealJs} -s -o "$DOCUMENT".html "$DOCUMENT" $@
   '';
 
-  slides-selfcontained= writers.writeBashBin "slides-selfcontained" ''
+  slides-selfcontained = writers.writeBashBin "slides-selfcontained" ''
     DOCUMENT=$1; shift
     ${slides-build}/bin/slides-build $DOCUMENT --self-contained $@
     # --css ./css/print/paper.css
@@ -49,7 +52,6 @@ rec {
     # 16:9 => 1920 x 1080,  16:10 => 1920x1200
     decktape -s 1920x1200 -p 10 $HTML $DOCUMENT.pdf
   '';
-
 
   slides-preview = writers.writeBashBin "slides-preview" ''
     DOCUMENT=$1
