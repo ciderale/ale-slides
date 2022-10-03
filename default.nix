@@ -46,13 +46,13 @@
   '';
 
   # currently not working: decktape not installed, some formatting issues
-  slides-pdf = writers.writeBashBin "slides-pdf" ''
-    DOCUMENT=$1; shift
-    HTML=$DOCUMENT.html
-    # 10214x768: https://github.com/astefanutti/decktape/issues/127
-    # 16:9 => 1920 x 1080,  16:10 => 1920x1200
-    decktape -s 1920x1200 -p 10 $HTML $DOCUMENT.pdf
-  '';
+  # slides-pdf = writers.writeBashBin "slides-pdf" ''
+  #   DOCUMENT=$1; shift
+  #   HTML=$DOCUMENT.html
+  #   # 10214x768: https://github.com/astefanutti/decktape/issues/127
+  #   # 16:9 => 1920 x 1080,  16:10 => 1920x1200
+  #   decktape -s 1920x1200 -p 10 $HTML $DOCUMENT.pdf
+  # '';
 
   slides-preview = writers.writeBashBin "slides-preview" ''
     DOCUMENT=$1
@@ -73,7 +73,7 @@
     echo "completed: open $HTML"
 
     # create pdf after finishing editing
-    # ${slides-pdf}/bin/slides-pdf $DOCUMENT > /dev/null 2&>/dev/null &
+    # ''${slides-pdf}/bin/slides-pdf $DOCUMENT > /dev/null 2&>/dev/null &
   '';
 
   bs-config = writeText "bs-config" ''
