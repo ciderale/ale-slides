@@ -70,19 +70,18 @@
       2>&1 >/dev/null &
     BSPID=$!
     echo "# watcher started with PID: $BSPID"
-    trap "kill $BSPID" EXIT
+    # kill with -HUP to avoid messing up the terminal
+    trap "kill -HUP $BSPID" EXIT
 
     vim $DOCUMENT
 
-    echo "compute a final self contained html"
+    echo "embed all resources in a self-contained html"
     $SLIDES_REBUILD --self-contained
+    echo "preview completed - self-contained html generated"
 
-    # somehow the terminal is scrambled, unclear how to resolve here"
     echo ""
-    echo "run 'reset' to reinitialize a scrambled terminal"
-    echo ""
-    echo "self-contained html completed: open $HTML"
-    echo "generate pdf with: slides-pdf $DOCUMENT"
+    echo "generate pdf: slides-pdf $DOCUMENT"
+    echo "self-contained html: open $HTML"
   '';
 
   bs-config = writeText "bs-config" ''
@@ -90,9 +89,7 @@
     const execSync = require('child_process').execSync;
     function build() {
       console.log('rebuild html file: ');
-      // exec sync seems to mess with the terminal
       const result = execSync("$SLIDES_REBUILD")
-      // console.log('result', result);
     }
     build()
     module.exports = {
