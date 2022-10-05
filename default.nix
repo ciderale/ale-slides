@@ -6,7 +6,18 @@
   revealJs,
   decktape,
   git,
-}: rec {
+}: let
+  strict = ''
+    set -euo pipefail
+    IFS=$'\n\t'
+  '';
+in rec {
+  slides = writers.writeBashBin "slides" ''
+    ${strict}
+    DOCUMENT=$1
+    [ ! -e "$DOCUMENT" ] && ${slides-init}/bin/slides-init > $DOCUMENT
+    ${slides-preview}/bin/slides-preview $DOCUMENT
+  '';
   slides-init = writers.writeBashBin "slides-init" ''
     TITLE=''${*:-Cool Presentation}
     export LC_TIME=''${LC_TIME:-de_CH}
@@ -29,6 +40,7 @@
 
   # build slides using pandoc.
   slides-build = writers.writeBashBin "slides-build" ''
+    ${strict}
     DOCUMENT=$1
     if [ ! -r "$DOCUMENT" ]; then
       echo "usage: $(basename $0) <slides.md> [additional pandoc arguments]"
@@ -41,12 +53,14 @@
   '';
 
   slides-selfcontained = writers.writeBashBin "slides-selfcontained" ''
+    ${strict}
     DOCUMENT=$1; shift
     ${slides-build}/bin/slides-build $DOCUMENT --self-contained $@
   '';
 
   # computing the pdf is quite slow, run only when fully done
   slides-pdf = writers.writeBashBin "slides-pdf" ''
+    ${strict}
     DOCUMENT=$1; shift
     HTML=$DOCUMENT.html
     # https://github.com/astefanutti/decktape/issues/151
@@ -60,9 +74,11 @@
   '';
 
   slides-preview = writers.writeBashBin "slides-preview" ''
+    ${strict}
     DOCUMENT=$1
     HTML=$DOCUMENT.html
-    export SLIDES_REBUILD="${slides-build}/bin/slides-build $*"
+    BUILD=${slides-build}/bin/slides-build
+    export SLIDES_REBUILD="$BUILD $@"
 
     echo "# watching for output changes and update slides"
     ${browser-sync}/bin/browser-sync \
@@ -76,7 +92,7 @@
     vim $DOCUMENT
 
     echo "embed all resources in a self-contained html"
-    $SLIDES_REBUILD --self-contained
+    $BUILD $@ --self-contained
     echo "preview completed - self-contained html generated"
 
     echo ""
