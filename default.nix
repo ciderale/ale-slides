@@ -43,9 +43,9 @@
   slides-selfcontained = writers.writeBashBin "slides-selfcontained" ''
     DOCUMENT=$1; shift
     ${slides-build}/bin/slides-build $DOCUMENT --self-contained $@
-    # --css ./css/print/paper.css
   '';
 
+  # computing the pdf is quite slow, run only when fully done
   slides-pdf = writers.writeBashBin "slides-pdf" ''
     DOCUMENT=$1; shift
     HTML=$DOCUMENT.html
@@ -69,16 +69,20 @@
       start --config ${bs-config} $DOCUMENT \
       2>&1 >/dev/null &
     BSPID=$!
+    echo "# watcher started with PID: $BSPID"
     trap "kill $BSPID" EXIT
 
     vim $DOCUMENT
 
     echo "compute a final self contained html"
     $SLIDES_REBUILD --self-contained
-    echo "completed: open $HTML"
 
-    # create pdf after finishing editing
-    # ''${slides-pdf}/bin/slides-pdf $DOCUMENT > /dev/null 2&>/dev/null &
+    # somehow the terminal is scrambled, unclear how to resolve here"
+    echo ""
+    echo "run 'reset' to reinitialize a scrambled terminal"
+    echo ""
+    echo "self-contained html completed: open $HTML"
+    echo "generate pdf with: slides-pdf $DOCUMENT"
   '';
 
   bs-config = writeText "bs-config" ''
@@ -86,7 +90,9 @@
     const execSync = require('child_process').execSync;
     function build() {
       console.log('rebuild html file: ');
-      console.log('result', execSync("$SLIDES_REBUILD"));
+      // exec sync seems to mess with the terminal
+      const result = execSync("$SLIDES_REBUILD")
+      // console.log('result', result);
     }
     build()
     module.exports = {
