@@ -29,6 +29,7 @@
           inherit revealJs;
           inherit (prev.nodePackages) browser-sync;
         };
+        decktape = (import ./decktape {pkgs = final;}).nodeDependencies;
       };
     }
     // flake-utils.lib.eachDefaultSystem (system: let
@@ -36,8 +37,22 @@
         inherit system;
         overlays = [self.overlay];
       };
+      decktape2nix = pkgs.writers.writeBashBin "decktap2nix" ''
+        PATH=${with pkgs; lib.makeBinPath [nodejs-18_x node2nix coreutils bash]};
+        mkdir decktape
+        cd decktape
+        npm init -y
+        npm install decktape
+        rm -r ./node_modules
+        node2nix -18 -l package-lock.json
+      '';
     in {
-      packages = pkgs.ale-slides;
+      packages =
+        {
+          inherit decktape2nix;
+          inherit (pkgs) decktape;
+        }
+        // pkgs.ale-slides;
       formatter = pkgs.alejandra;
     });
 }
