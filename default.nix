@@ -4,6 +4,7 @@
   pandoc,
   browser-sync,
   revealJs,
+  decktape,
   git,
 }: rec {
   slides-init = writers.writeBashBin "slides-init" ''
@@ -45,14 +46,18 @@
     # --css ./css/print/paper.css
   '';
 
-  # currently not working: decktape not installed, some formatting issues
-  # slides-pdf = writers.writeBashBin "slides-pdf" ''
-  #   DOCUMENT=$1; shift
-  #   HTML=$DOCUMENT.html
-  #   # 10214x768: https://github.com/astefanutti/decktape/issues/127
-  #   # 16:9 => 1920 x 1080,  16:10 => 1920x1200
-  #   decktape -s 1920x1200 -p 10 $HTML $DOCUMENT.pdf
-  # '';
+  slides-pdf = writers.writeBashBin "slides-pdf" ''
+    DOCUMENT=$1; shift
+    HTML=$DOCUMENT.html
+    # https://github.com/astefanutti/decktape/issues/151
+    # 1024x768: https://github.com/astefanutti/decktape/issues/127
+    # => there is some open issue with rendering reveal to pdf
+    # => increasing the --size seems to be a workaround
+    # => using larger sizes seems to be imporant
+    # 16:9 => 1920x1080,  16:10 => 1920x1200
+    # 16:9 => 2048x1152,  16:10 => 2048x1280
+    decktape --size 2048x1152 $HTML $DOCUMENT.pdf
+  '';
 
   slides-preview = writers.writeBashBin "slides-preview" ''
     DOCUMENT=$1

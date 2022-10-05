@@ -25,7 +25,7 @@
       };
 
       overlay = final: prev: {
-        ale-slides = prev.pkgs.callPackages ./default.nix {
+        ale-slides = final.callPackages ./default.nix {
           inherit revealJs;
           inherit (prev.nodePackages) browser-sync;
         };
@@ -39,12 +39,14 @@
       };
       decktape2nix = pkgs.writers.writeBashBin "decktap2nix" ''
         PATH=${with pkgs; lib.makeBinPath [nodejs-18_x node2nix coreutils bash]};
-        mkdir decktape
-        cd decktape
-        npm init -y
-        npm install decktape
-        rm -r ./node_modules
-        node2nix -18 -l package-lock.json
+        mkdir decktape \
+        && cd decktape \
+        && npm init -y \
+        && npm install decktape \
+        && rm -r ./node_modules \
+        && node2nix -18 -l package-lock.json \
+        && echo "installed decktape" \
+        && echo "add decktape to git"
       '';
     in {
       packages =
