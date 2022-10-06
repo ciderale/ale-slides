@@ -70,7 +70,7 @@ in rec {
     # => using larger sizes seems to be imporant
     # 16:9 => 1920x1080,  16:10 => 1920x1200
     # 16:9 => 2048x1152,  16:10 => 2048x1280
-    decktape --size 2048x1152 $HTML $DOCUMENT.pdf
+    ${decktape}/bin/decktape --size 2048x1152 $HTML $DOCUMENT.pdf
   '';
 
   slides-preview = writers.writeBashBin "slides-preview" ''
